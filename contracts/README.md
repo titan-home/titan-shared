@@ -11,6 +11,9 @@ for every client. It arrives with build-plan stage 1.
   model, errors are one `application/problem+json` schema instead of
   FastAPI's default validation error, and internal routes are left out of
   the schema.
+- Every error has the `type` `about:blank` for now; a specific `type`
+  arrives when a client must tell apart two errors with the same status
+  ([decision #92](../docs/decisions/README.md#register)).
 - A pull request that changes the contract lists every added or changed
   operation and field with the acceptance criterion it serves. Whatever
   serves no criterion is removed.
