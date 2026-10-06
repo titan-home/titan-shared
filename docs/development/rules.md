@@ -126,6 +126,9 @@ it still needs a test that fails without the fix.
     numbers.
   - Body: one plain paragraph on what changed and why, wrapped at 72.
   - No AI attribution: no `Co-Authored-By` or session trailers.
+  - Dependabot's commits keep the titles it writes, `Bump … from … to …`,
+    since it cannot be told to use another verb
+    ([decision #95](../decisions/README.md#register)).
 - **History:** `master` has a linear history. Pull requests are merged by
   rebase, so every commit lands on `master` as it is and must stand on its
   own.
