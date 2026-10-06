@@ -16,6 +16,9 @@ Every other TITAN repository includes this one as a git submodule at
 
 Start with the [documentation index](docs/README.md).
 
+`scripts/check_links.py` checks every relative link in the Markdown files;
+CI runs it on every pull request, here and in `titan`.
+
 ## Changing shared content
 
 Change this repository through its own pull request, then move the `shared/`
