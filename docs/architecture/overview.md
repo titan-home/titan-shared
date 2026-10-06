@@ -44,7 +44,7 @@ flowchart TB
 |---|---|---|
 | nginx | stock image, config in `titan-node` | The single entry and TLS ([decisions #17, #18, #19](../decisions/README.md#register)): `/` serves the UI, `/api` proxies to the API; security headers; SSE without buffering |
 | web-ui | `titan-web` | An image with the UI files only (`FROM scratch`); nginx mounts it read-only |
-| api | `titan-backend` | HTTP API for every client; a chat turn is a LangGraph graph running the Agent SDK with tools; autonomy policy and audit log |
+| api | `titan-backend` | HTTP API for every client; a chat turn runs the Agent SDK with tools, workflows are LangGraph graphs; autonomy policy and audit log |
 | worker | `titan-backend` | Background work: firing reminders, the morning plan and replanning, note indexing |
 | controller | `titan-node` | Service health, updates and rollback, backups, secrets, running plugins, certificates; later the cluster. No network listener: the API calls it over a Unix socket ([decision #78](../decisions/README.md#register)) |
 | plugins | their own | Containers with a manifest run by the controller, or a TITAN agent on another machine that connects out to the node; the API calls their tools over MCP; they reach data only through the API; confidential values can be replaced with placeholders before leaving the plugin's machine ([plugins on other machines](../decisions/README.md#plugins-on-other-machines-21-22)) |
@@ -62,7 +62,7 @@ hard problem in the system.
 
 1. The client posts the message to `POST /api/v1/chat/threads/{id}/messages`
    and keeps the SSE stream open.
-2. The API stores the message and starts the chat-turn graph: thread history,
+2. The API stores the message and starts the chat turn: thread history,
    system prompt, tool list.
 3. The Agent SDK asks Claude; reply text streams to the client as it comes.
 4. Claude decides to call `create_reminder`. The policy hook runs before the

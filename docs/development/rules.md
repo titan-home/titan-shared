@@ -338,7 +338,9 @@ under "Before committing": the checks that must pass before every commit.
 - Every new dependency needs a reason in its pull request: what it does that a
   few lines of our own code or an existing dependency cannot.
 - Licences must be permissive and compatible with releasing TITAN under the
-  Unlicense.
+  Unlicense. The one exception is the Claude Code binary bundled with the
+  Agent SDK, used unmodified under Anthropic's terms
+  ([decision #100](../decisions/README.md#register)).
 - Prefer widely used, maintained projects. Pin versions through lock files.
 - Updates arrive as their own pull requests and pass every check.
 
