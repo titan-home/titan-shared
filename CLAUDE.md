@@ -31,8 +31,9 @@ Read and follow:
 Run this checklist before every commit
 ([development rules, "Before committing"](docs/development/rules.md#before-committing)):
 
-1. Every relative link in the changed files points to a file and heading that
-   exist.
+1. Every relative link points to a file and heading that exist:
+   `python3 scripts/check_links.py .` prints nothing. CI runs the same check;
+   `titan` uses it too.
 2. The [decisions register](docs/decisions/README.md), the
    [feature catalogue](docs/product/features.md) and the
    [build plan](docs/roadmap/plan.md) still agree with what changed.
