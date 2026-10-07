@@ -360,9 +360,10 @@ under "Before committing": the checks that must pass before every commit.
   `confirm` ([decision #37](../decisions/README.md#register)).
 - Every tool call is written to the audit log.
 - Every tool has tests, including access checks and its undo.
-- Policy is enforced in the tool hooks of the agent runtime, never by the
-  prompt alone, so the agent cannot bypass it; an approved call runs later
-  without the agent, exactly as approved.
+- Policy is enforced in code, in the wrapper every tool call passes through
+  ([decision #113](../decisions/README.md#register)), never by the prompt
+  alone, so the agent cannot bypass it; an approved call runs later without
+  the agent, exactly as approved.
 - The Agent SDK runs with a clean environment that holds exactly one
   credential, the subscription's OAuth token, and its session transcripts go
   to tmpfs. `ANTHROPIC_API_KEY` in the environment takes precedence over the
