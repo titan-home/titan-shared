@@ -100,7 +100,8 @@ Everything the agent did can be looked up afterwards.
 
 1. Every tool call is written to the log, built-in and plugin calls alike:
    when, which tool, its class and mode, the input, the outcome, and the
-   state before and after.
+   fields it changed, before and after
+   ([decision #108](../../decisions/README.md#register)).
 2. Calls that did not run, rejected, expired or denied, are in the log too.
 3. A user sees only their own log.
 4. Entries are kept for good, except that when an object is deleted for
