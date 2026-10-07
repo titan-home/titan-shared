@@ -248,10 +248,184 @@
           }
         ]
       }
+    },
+    "/api/v1/policy/modes": {
+      "get": {
+        "summary": "List Modes",
+        "description": "The mode every action class runs in, in every domain, and whose it is.",
+        "operationId": "list_modes",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PolicyModeOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Modes"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/policy/modes/{domain}/{action_class}": {
+      "put": {
+        "summary": "Set Mode",
+        "description": "Set the user's own mode for one action class in one domain.\n\nexternal and destructive can only be confirm or deny (decision #116).",
+        "operationId": "set_mode",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "domain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Domain"
+            }
+          },
+          {
+            "name": "action_class",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ActionClass"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PolicyModeIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PolicyModeOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Reset Mode",
+        "description": "Return one action class in one domain to its default mode.",
+        "operationId": "reset_mode",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "domain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Domain"
+            }
+          },
+          {
+            "name": "action_class",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ActionClass"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "ActionClass": {
+        "type": "string",
+        "enum": [
+          "read",
+          "write-internal",
+          "external",
+          "destructive"
+        ],
+        "title": "ActionClass",
+        "description": "How much a call can change, which sets its default mode (decision #38).\n\nA user can change the mode of one class in one domain (decision #10)."
+      },
       "ChatDoneEvent": {
         "properties": {
           "type": {
@@ -404,6 +578,14 @@
         "title": "DeviceRegistrationOut",
         "description": "The paired device and its token, shown to the device this one time."
       },
+      "Domain": {
+        "type": "string",
+        "enum": [
+          "tasks"
+        ],
+        "title": "Domain",
+        "description": "The area of the user's data a tool works in (decision #114).\n\nA user's mode for a class can differ per domain (decision #10). A value is\nadded with the first tool of its domain."
+      },
       "MessageIn": {
         "properties": {
           "text": {
@@ -419,6 +601,57 @@
         ],
         "title": "MessageIn",
         "description": "What the user wrote."
+      },
+      "Mode": {
+        "type": "string",
+        "enum": [
+          "auto",
+          "auto-undo",
+          "confirm",
+          "deny"
+        ],
+        "title": "Mode",
+        "description": "What happens when the agent calls a tool (autonomy spec, modes)."
+      },
+      "PolicyModeIn": {
+        "properties": {
+          "mode": {
+            "$ref": "#/components/schemas/Mode"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mode"
+        ],
+        "title": "PolicyModeIn",
+        "description": "The mode the user wants for one action class in one domain."
+      },
+      "PolicyModeOut": {
+        "properties": {
+          "domain": {
+            "$ref": "#/components/schemas/Domain"
+          },
+          "action_class": {
+            "$ref": "#/components/schemas/ActionClass"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/Mode"
+          },
+          "own": {
+            "type": "boolean",
+            "title": "Own",
+            "description": "The user's own mode rather than the default."
+          }
+        },
+        "type": "object",
+        "required": [
+          "domain",
+          "action_class",
+          "mode",
+          "own"
+        ],
+        "title": "PolicyModeOut",
+        "description": "The mode one action class runs in, in one domain, for the signed-in user."
       },
       "ThreadOut": {
         "properties": {
