@@ -14,6 +14,10 @@ for every client. It arrives with build-plan stage 1.
 - Every error has the `type` `about:blank` for now; a specific `type`
   arrives when a client must tell apart two errors with the same status
   ([decision #92](../docs/decisions/README.md#register)).
+- A streamed reply is `text/event-stream`: every event is one `data:` line
+  holding a JSON object whose `type` says which event it is, and the
+  contract describes those objects in the operation's `itemSchema`
+  ([decision #104](../docs/decisions/README.md#register)).
 - A pull request that changes the contract lists every added or changed
   operation and field with the acceptance criterion it serves. Whatever
   serves no criterion is removed.
