@@ -122,6 +122,11 @@ Much of what the agent did can be undone with one tap.
 2. If the record changed after the action, the undo is refused with a short
    explanation; it never overwrites a later change.
 3. An undo is itself written to the log.
+4. Undoing puts back what the action changed: old values return, a created
+   item moves to the trash, a deleted one comes back from it
+   ([decision #109](../../decisions/README.md#register)).
+5. An action that changed several items is undone whole; if any of them
+   changed after the action, the whole undo is refused.
 
 ## Warning before actions go to the archive [v1]
 
