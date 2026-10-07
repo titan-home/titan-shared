@@ -79,8 +79,14 @@ are.
 **Acceptance criteria**
 
 1. A request not decided within 24 hours expires and counts as rejected.
+   24 hours is the node's default; the node setting can change it
+   ([decision #127](../../decisions/README.md#register)).
 2. An expired or rejected request never runs, and the audit log keeps a
    record of it.
+3. Approving or rejecting an expired request changes nothing and says it
+   has expired ([decision #125](../../decisions/README.md#register)).
+4. The thread the request came from gets a message saying it expired
+   ([decision #126](../../decisions/README.md#register)).
 
 ## An approved call runs exactly as approved, without the agent [v1]
 
