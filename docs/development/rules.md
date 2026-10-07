@@ -182,6 +182,9 @@ it still needs a test that fails without the fix.
 - `ruff format` and `ruff check`; `mypy --strict`; `pytest`.
 - Async I/O throughout the API and worker; no blocking calls on the event loop.
 - Layering is enforced: domains never import the API or the agent layer.
+- Data the audit log covers (`Audited` models) is changed only through ORM
+  objects, never with bulk `update`, `insert` or `delete` statements, which
+  the log does not see ([decision #110](../decisions/README.md#register)).
 
 ### TypeScript (`titan-web`)
 
