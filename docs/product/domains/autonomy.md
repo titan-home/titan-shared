@@ -136,6 +136,10 @@ Much of what the agent did can be undone with one tap.
    ([decision #109](../../decisions/README.md#register)).
 5. An action that changed several items is undone whole; if any of them
    changed after the action, the whole undo is refused.
+6. The thread the action came from gets a message saying it was undone
+   ([decision #133](../../decisions/README.md#register)).
+7. An undo can itself be undone
+   ([decision #132](../../decisions/README.md#register)).
 
 ## Warning before actions go to the archive [v1]
 
