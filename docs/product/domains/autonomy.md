@@ -55,6 +55,9 @@ only where a domain needs it.
    ([decision #10](../../decisions/README.md#register)).
 3. A user's settings apply only to that user's agent.
 4. No class defaults to `deny`; it is only ever set by hand.
+5. `external` and `destructive` are never set below `confirm`: setting them to
+   `auto` or `auto-undo` is refused
+   ([decision #116](../../decisions/README.md#register)).
 
 ## Approvals: Approve and Reject in chat, on the web, on the phone [v1]
 
