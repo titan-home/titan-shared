@@ -5,6 +5,241 @@
     "version": "1"
   },
   "paths": {
+    "/api/v1/approvals": {
+      "get": {
+        "summary": "List Approvals",
+        "description": "The signed-in user's pending approval requests, oldest first.",
+        "operationId": "list_approvals",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "At most the node's maximum page size, larger is capped; 100 by default. Missing means the maximum.",
+              "title": "Limit"
+            },
+            "description": "At most the node's maximum page size, larger is capped; 100 by default. Missing means the maximum."
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The `next` of the page before.",
+              "title": "After"
+            },
+            "description": "The `next` of the page before."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApprovalPage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/approvals/{approval_id}/approve": {
+      "post": {
+        "summary": "Approve Request",
+        "description": "Approve a pending request: run its call as stored, and tell its thread.\n\nThe answer is 200 whether the call ran or failed; `status` says which.",
+        "operationId": "approve_request",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "approval_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Approval Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApprovalOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/approvals/{approval_id}/reject": {
+      "post": {
+        "summary": "Reject Request",
+        "description": "Reject a pending request: its call never runs, and its thread is told.",
+        "operationId": "reject_request",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "approval_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Approval Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApprovalOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/chat/threads": {
       "post": {
         "summary": "Create Thread",
@@ -426,6 +661,80 @@
         "title": "ActionClass",
         "description": "How much a call can change, which sets its default mode (decision #38).\n\nA user can change the mode of one class in one domain (decision #10)."
       },
+      "ApprovalOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id",
+            "description": "The call's audit entry."
+          },
+          "tool": {
+            "type": "string",
+            "title": "Tool"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "domain": {
+            "$ref": "#/components/schemas/Domain"
+          },
+          "action_class": {
+            "$ref": "#/components/schemas/ActionClass"
+          },
+          "status": {
+            "$ref": "#/components/schemas/EntryStatus"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "tool",
+          "summary",
+          "domain",
+          "action_class",
+          "status",
+          "created_at"
+        ],
+        "title": "ApprovalOut",
+        "description": "A call that waits, or waited, for the user's approval."
+      },
+      "ApprovalPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ApprovalOut"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "next": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next",
+            "description": "Send it back as `after` for the next page; null on the last."
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "next"
+        ],
+        "title": "ApprovalPage",
+        "description": "A page of approval requests, oldest first (decision #124)."
+      },
       "ChatDoneEvent": {
         "properties": {
           "type": {
@@ -610,6 +919,19 @@
         ],
         "title": "Domain",
         "description": "The area of the user's data a tool works in (decision #114).\n\nA user's mode for a class can differ per domain (decision #10). A value is\nadded with the first tool of its domain."
+      },
+      "EntryStatus": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "rejected",
+          "expired",
+          "done",
+          "failed",
+          "denied"
+        ],
+        "title": "EntryStatus",
+        "description": "Where a call stands in its life (decision #111)."
       },
       "MessageIn": {
         "properties": {
