@@ -5,6 +5,161 @@
     "version": "1"
   },
   "paths": {
+    "/api/v1/chat/threads": {
+      "post": {
+        "summary": "Create Thread",
+        "description": "Start a new, empty thread.",
+        "operationId": "create_thread",
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ThreadOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/chat/threads/{thread_id}/messages": {
+      "post": {
+        "summary": "Send Message",
+        "description": "Send a message and get the agent's reply as server-sent events.\n\nEvery event's data is one JSON object whose `type` says what it is. The\nstream ends with `done` or `error`. A client that disconnects loses\nnothing: the turn runs to the end and its reply is stored.",
+        "operationId": "send_message",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "thread_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Thread Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "text/event-stream": {
+                "itemSchema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "string",
+                      "contentMediaType": "application/json",
+                      "contentSchema": {
+                        "oneOf": [
+                          {
+                            "$ref": "#/components/schemas/ChatTextEvent"
+                          },
+                          {
+                            "$ref": "#/components/schemas/ChatToolCallEvent"
+                          },
+                          {
+                            "$ref": "#/components/schemas/ChatDoneEvent"
+                          },
+                          {
+                            "$ref": "#/components/schemas/ChatErrorEvent"
+                          }
+                        ],
+                        "discriminator": {
+                          "propertyName": "type",
+                          "mapping": {
+                            "text": "#/components/schemas/ChatTextEvent",
+                            "tool_call": "#/components/schemas/ChatToolCallEvent",
+                            "done": "#/components/schemas/ChatDoneEvent",
+                            "error": "#/components/schemas/ChatErrorEvent"
+                          }
+                        },
+                        "title": "Streamitem Send Message"
+                      }
+                    },
+                    "event": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "retry": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/devices": {
       "post": {
         "summary": "Add Device",
@@ -97,6 +252,101 @@
   },
   "components": {
     "schemas": {
+      "ChatDoneEvent": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "done",
+            "title": "Type",
+            "default": "done"
+          },
+          "message_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Message Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "message_id"
+        ],
+        "title": "ChatDoneEvent",
+        "description": "The reply is complete and stored; the stream ends."
+      },
+      "ChatErrorEvent": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "error",
+            "title": "Type",
+            "default": "error"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "title"
+        ],
+        "title": "ChatErrorEvent",
+        "description": "The turn failed and nothing of it was kept; the stream ends."
+      },
+      "ChatTextEvent": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "text",
+            "title": "Type",
+            "default": "text"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "text"
+        ],
+        "title": "ChatTextEvent",
+        "description": "The next piece of the reply's text, as Claude writes it."
+      },
+      "ChatToolCallEvent": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "tool_call",
+            "title": "Type",
+            "default": "tool_call"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "name",
+          "summary",
+          "ok"
+        ],
+        "title": "ChatToolCallEvent",
+        "description": "A tool call that ran: its name, a line a person can read, its outcome."
+      },
       "DeviceRegistrationIn": {
         "properties": {
           "username": {
@@ -153,6 +403,37 @@
         ],
         "title": "DeviceRegistrationOut",
         "description": "The paired device and its token, shown to the device this one time."
+      },
+      "MessageIn": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Text",
+            "description": "At most as many characters as the user's limit allows, 20000 by default."
+          }
+        },
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "MessageIn",
+        "description": "What the user wrote."
+      },
+      "ThreadOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "title": "ThreadOut",
+        "description": "A new thread."
       },
       "WhoamiDeviceOut": {
         "properties": {
