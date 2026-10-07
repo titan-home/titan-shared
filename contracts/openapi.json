@@ -509,6 +509,27 @@
           "ok": {
             "type": "boolean",
             "title": "Ok"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "done",
+              "failed",
+              "pending",
+              "denied"
+            ],
+            "title": "Status"
+          },
+          "entry_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Entry Id"
+          },
+          "domain": {
+            "$ref": "#/components/schemas/Domain"
+          },
+          "action_class": {
+            "$ref": "#/components/schemas/ActionClass"
           }
         },
         "type": "object",
@@ -516,10 +537,14 @@
           "type",
           "name",
           "summary",
-          "ok"
+          "ok",
+          "status",
+          "entry_id",
+          "domain",
+          "action_class"
         ],
         "title": "ChatToolCallEvent",
-        "description": "A tool call that ran: its name, a line a person can read, its outcome."
+        "description": "A tool call, run or not: its name, a line a person can read, its status.\n\nThe status is the one when the reply was made; a `pending` call waits for\nthe user's approval, and its entry says what became of it later."
       },
       "DeviceRegistrationIn": {
         "properties": {
