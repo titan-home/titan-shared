@@ -690,6 +690,12 @@
             "type": "string",
             "format": "date-time",
             "title": "Created At"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At",
+            "description": "When a pending request expires: its creation time plus the node's setting in effect now (decision #127)."
           }
         },
         "type": "object",
@@ -700,7 +706,8 @@
           "domain",
           "action_class",
           "status",
-          "created_at"
+          "created_at",
+          "expires_at"
         ],
         "title": "ApprovalOut",
         "description": "A call that waits, or waited, for the user's approval."
