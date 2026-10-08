@@ -240,6 +240,82 @@
         }
       }
     },
+    "/api/v1/audit/entries/{entry_id}/undo": {
+      "post": {
+        "summary": "Undo Entry",
+        "description": "Undo an action from its entry, whole; answer with the undo's own entry.\n\nEvery refusal is 409 with a plain detail: never ran, cannot be undone,\nalready undone, older than one year, or changed later.",
+        "operationId": "undo_entry",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "entry_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Entry Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditEntryOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/chat/threads": {
       "post": {
         "summary": "Create Thread",
@@ -741,6 +817,81 @@
         ],
         "title": "ApprovalPage",
         "description": "A page of approval requests, oldest first (decision #124)."
+      },
+      "AuditEntryOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "tool": {
+            "type": "string",
+            "title": "Tool"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "domain": {
+            "$ref": "#/components/schemas/Domain"
+          },
+          "action_class": {
+            "$ref": "#/components/schemas/ActionClass"
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Mode"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The mode the policy ran the call in; null for an undo."
+          },
+          "status": {
+            "$ref": "#/components/schemas/EntryStatus"
+          },
+          "undoable": {
+            "type": "boolean",
+            "title": "Undoable",
+            "description": "Whether the call's tool could be undone when it was called."
+          },
+          "undoes_entry_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Undoes Entry Id",
+            "description": "For an undo, the entry it took back; null otherwise."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "tool",
+          "summary",
+          "domain",
+          "action_class",
+          "mode",
+          "status",
+          "undoable",
+          "undoes_entry_id",
+          "created_at"
+        ],
+        "title": "AuditEntryOut",
+        "description": "One call in the user's audit log, or an undo (decisions #108, #131)."
       },
       "ChatDoneEvent": {
         "properties": {
