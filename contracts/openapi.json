@@ -997,6 +997,10 @@
           },
           "action_class": {
             "$ref": "#/components/schemas/ActionClass"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/Mode",
+            "description": "The mode the policy ran the call in; a client shows an Undo for a `done` call in `auto-undo` (decision #139)."
           }
         },
         "type": "object",
@@ -1008,7 +1012,8 @@
           "status",
           "entry_id",
           "domain",
-          "action_class"
+          "action_class",
+          "mode"
         ],
         "title": "ChatToolCallEvent",
         "description": "A tool call, run or not: its name, a line a person can read, its status.\n\nThe status is the one when the reply was made; a `pending` call waits for\nthe user's approval, and its entry says what became of it later."
