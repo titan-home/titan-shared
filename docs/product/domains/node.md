@@ -32,9 +32,9 @@ Only [v1] features are described; the rest stay in the catalogue.
 
 **Acceptance criteria**
 
-1. The controller checks every service's health endpoint and shows the
-   result in the CLI and the web UI
-   ([decision #4](../../decisions/README.md#register)).
+1. The controller reports every service's health, as Docker's healthchecks
+   see it, and the CLI and the web UI show it
+   ([decisions #4, #155](../../decisions/README.md#register)).
 2. The controller's Docker access is the most sensitive privilege on the
    node and is guarded accordingly.
 3. The controller does not listen on the network. The API calls it over a
