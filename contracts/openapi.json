@@ -240,6 +240,89 @@
         }
       }
     },
+    "/api/v1/audit/entries": {
+      "get": {
+        "summary": "List Entries",
+        "description": "The signed-in user's audit log, newest first: every call and every undo.",
+        "operationId": "list_entries",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "At most the node's maximum page size, larger is capped; 100 by default. Missing means the maximum.",
+              "title": "Limit"
+            },
+            "description": "At most the node's maximum page size, larger is capped; 100 by default. Missing means the maximum."
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The `next` of the page before.",
+              "title": "After"
+            },
+            "description": "The `next` of the page before."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditEntryPage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/audit/entries/{entry_id}/undo": {
       "post": {
         "summary": "Undo Entry",
@@ -892,6 +975,36 @@
         ],
         "title": "AuditEntryOut",
         "description": "One call in the user's audit log, or an undo (decisions #108, #131)."
+      },
+      "AuditEntryPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AuditEntryOut"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "next": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next",
+            "description": "Send it back as `after` for the next page; null on the last."
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "next"
+        ],
+        "title": "AuditEntryPage",
+        "description": "A page of the user's audit log, newest first (decision #124)."
       },
       "ChatDoneEvent": {
         "properties": {
